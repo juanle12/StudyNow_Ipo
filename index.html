@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyNow | Espacios de Estudio Inteligentes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .seat {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .seat.available { background-color: #10b981; }
+        .seat.occupied { background-color: #ef4444; }
+        .seat.away { background-color: #f59e0b; } /* Usuario ausente temporalmente */
+        .seat.selected { border: 3px solid #3b82f6; transform: scale(1.1); }
+
+        .nav-link {
+            transition: color 0.2s;
+        }
+        .nav-link.active {
+            color: #3b82f6;
+            font-weight: 600;
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- Sidebar / Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-6 py-3 flex justify-between items-center z-50 md:top-0 md:bottom-auto md:flex-col md:w-20 md:h-full md:border-r md:border-t-0">
+        <div class="hidden md:block mb-8 mt-2">
+            <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">SN</div>
+        </div>
+        <div class="flex md:flex-col md:gap-8 justify-around w-full md:w-auto">
+            <button onclick="switchTab('dashboard')" class="nav-link active flex flex-col items-center" id="nav-dashboard">
+                <i class="fas fa-chart-pie text-xl"></i>
+                <span class="text-[10px] mt-1 md:hidden">Inicio</span>
+            </button>
+            <button onclick="switchTab('map')" class="nav-link flex flex-col items-center text-slate-400" id="nav-map">
+                <i class="fas fa-map-marker-alt text-xl"></i>
+                <span class="text-[10px] mt-1 md:hidden">Mapa</span>
+            </button>
+            <button onclick="switchTab('rooms')" class="nav-link flex flex-col items-center text-slate-400" id="nav-rooms">
+                <i class="fas fa-users text-xl"></i>
+                <span class="text-[10px] mt-1 md:hidden">Salas</span>
+            </button>
+            <button onclick="switchTab('books')" class="nav-link flex flex-col items-center text-slate-400" id="nav-books">
+                <i class="fas fa-book text-xl"></i>
+                <span class="text-[10px] mt-1 md:hidden">Libros</span>
+            </button>
+            <button onclick="switchTab('admin')" class="nav-link flex flex-col items-center text-slate-400" id="nav-admin">
+                <i class="fas fa-user-shield text-xl"></i>
+                <span class="text-[10px] mt-1 md:hidden">Admin</span>
+            </button>
+        </div>
+        <div class="hidden md:block mt-auto pb-4">
+            <img src="https://i.pravatar.cc/150?u=student" class="w-10 h-10 rounded-full border-2 border-blue-100" alt="Avatar">
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="pb-24 pt-6 px-4 md:pl-28 md:pr-12 max-w-7xl mx-auto">
+        
+        <header class="mb-8 flex justify-between items-end">
+            <div>
+                <h1 id="page-title" class="text-3xl font-bold text-slate-900 tracking-tight">Panel de Control</h1>
+                <p id="page-subtitle" class="text-slate-500">Bienvenido a StudyNow, Central Universitaria.</p>
+            </div>
+            <div class="hidden sm:block text-right">
+                <p class="text-sm font-medium text-slate-400 uppercase tracking-widest">Estado</p>
+                <div class="flex items-center gap-2 text-green-500 font-semibold">
+                    <span class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    </span>
+                    En línea
+                </div>
+            </div>
+        </header>
+
+        <!-- DASHBOARD TAB -->
+        <section id="tab-dashboard" class="tab-content">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Library Card 1 -->
+                <div class="glass-card p-6 rounded-2xl shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="font-bold text-lg">Biblio. Central</h3>
+                        <span class="bg-red-100 text-red-600 px-2 py-1 rounded text-xs font-bold">85% Ocupado</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-2 rounded-full mb-4">
+                        <div class="bg-red-500 h-2 rounded-full" style="width: 85%"></div>
+                    </div>
+                    <p class="text-sm text-slate-500 mb-4"><i class="far fa-clock mr-2"></i>Pico de uso en: 45 min</p>
+                    <button onclick="switchTab('map')" class="w-full py-2 bg-blue-50 text-blue-600 rounded-xl font-semibold hover:bg-blue-100 transition">Ver Puestos Libres</button>
+                </div>
+
+                <!-- Library Card 2 -->
+                <div class="glass-card p-6 rounded-2xl shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="font-bold text-lg">Fac. Ingeniería</h3>
+                        <span class="bg-green-100 text-green-600 px-2 py-1 rounded text-xs font-bold">32% Ocupado</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-2 rounded-full mb-4">
+                        <div class="bg-green-500 h-2 rounded-full" style="width: 32%"></div>
+                    </div>
+                    <p class="text-sm text-slate-500 mb-4"><i class="far fa-clock mr-2"></i>Ambiente tranquilo</p>
+                    <button class="w-full py-2 bg-blue-50 text-blue-600 rounded-xl font-semibold hover:bg-blue-100 transition">Ver Puestos Libres</button>
+                </div>
+
+                <!-- Library Card 3 -->
+                <div class="glass-card p-6 rounded-2xl shadow-sm border-dashed border-2 border-slate-300 flex flex-col items-center justify-center text-slate-400">
+                    <i class="fas fa-plus-circle text-2xl mb-2"></i>
+                    <p class="text-sm">Explorar más centros</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="glass-card p-6 rounded-2xl shadow-sm">
+                    <h3 class="font-bold text-xl mb-4">Próximos Cambios</h3>
+                    <div class="space-y-4">
+                        <div class="flex gap-4 items-center p-3 hover:bg-slate-50 rounded-xl transition">
+                            <div class="bg-amber-100 text-amber-600 p-3 rounded-lg"><i class="fas fa-bell"></i></div>
+                            <div>
+                                <p class="font-semibold">Liberación Automática</p>
+                                <p class="text-xs text-slate-500">Puesto B-12 será liberado en 5 min por inactividad.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 items-center p-3 hover:bg-slate-50 rounded-xl transition">
+                            <div class="bg-blue-100 text-blue-600 p-3 rounded-lg"><i class="fas fa-info-circle"></i></div>
+                            <div>
+                                <p class="font-semibold">Nueva Sala de Grupo</p>
+                                <p class="text-xs text-slate-500">Sala 'Tesla' disponible para reservar hoy.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass-card p-6 rounded-2xl shadow-sm">
+                    <h3 class="font-bold text-xl mb-4">Tu Actividad</h3>
+                    <div class="flex items-center justify-between p-4 bg-blue-600 rounded-2xl text-white">
+                        <div>
+                            <p class="text-blue-100 text-sm">Sesión Actual</p>
+                            <p class="text-2xl font-bold">2h 15m</p>
+                            <p class="text-xs text-blue-100">Biblio. Central - Puesto A-04</p>
+                        </div>
+                        <button class="bg-white text-blue-600 px-4 py-2 rounded-xl font-bold text-sm shadow-lg">LIBERAR PUESTO</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MAP TAB -->
+        <section id="tab-map" class="tab-content hidden">
+            <div class="flex flex-col lg:flex-row gap-6">
+                <div class="lg:w-2/3 glass-card p-6 rounded-2xl shadow-sm">
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="flex gap-4">
+                            <select class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1 text-sm outline-none">
+                                <option>Planta 0 (Acceso)</option>
+                                <option selected>Planta 1 (Silencio)</option>
+                                <option>Planta 2 (Grupos)</option>
+                            </select>
+                        </div>
+                        <div class="flex gap-3 text-xs uppercase font-bold tracking-tighter">
+                            <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-green-500"></span> Libre</div>
+                            <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-red-500"></span> Ocupado</div>
+                            <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-amber-500"></span> Ausente</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Map Grid -->
+                    <div id="seat-map" class="grid grid-cols-6 sm:grid-cols-10 gap-4 p-8 bg-slate-50 rounded-2xl border border-slate-100 justify-items-center">
+                        <!-- Seats generated by JS -->
+                    </div>
+                </div>
+
+                <div class="lg:w-1/3 space-y-6">
+                    <div class="glass-card p-6 rounded-2xl shadow-sm">
+                        <h3 class="font-bold text-lg mb-4">Detalles del Puesto</h3>
+                        <div id="seat-details" class="text-center py-8 text-slate-400">
+                            <i class="fas fa-mouse-pointer text-3xl mb-3"></i>
+                            <p>Selecciona un puesto en el mapa para ver detalles o reservar.</p>
+                        </div>
+                        <div id="active-seat-ui" class="hidden">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-3xl font-bold text-blue-600" id="selected-id">A-12</span>
+                                <span class="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-bold">Disponible</span>
+                            </div>
+                            <ul class="space-y-3 mb-6">
+                                <li class="flex items-center text-sm"><i class="fas fa-plug mr-3 text-slate-400"></i> Enchufe disponible</li>
+                                <li class="flex items-center text-sm"><i class="fas fa-wifi mr-3 text-slate-400"></i> Señal WiFi Excelente</li>
+                                <li class="flex items-center text-sm"><i class="fas fa-wind mr-3 text-slate-400"></i> Cerca de Ventana</li>
+                            </ul>
+                            <button onclick="bookSeat()" class="w-full py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition">OCUPAR PUESTO AHORA</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ROOMS TAB -->
+        <section id="tab-rooms" class="tab-content hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Room Card 1 -->
+                <div class="glass-card overflow-hidden rounded-2xl shadow-sm group">
+                    <div class="h-32 bg-slate-200 relative">
+                        <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=500&q=80" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition duration-500" alt="Room">
+                        <div class="absolute top-3 right-3 bg-white px-2 py-1 rounded-lg text-xs font-bold">4-6 pers.</div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg">Sala Da Vinci</h3>
+                        <p class="text-sm text-slate-500 mb-4">Pizarra blanca, Proyector HDMI, AC.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-green-600 text-xs font-bold uppercase">Disponible hoy</span>
+                            <button class="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium">Reservar</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Room Card 2 -->
+                <div class="glass-card overflow-hidden rounded-2xl shadow-sm group">
+                    <div class="h-32 bg-slate-200 relative">
+                        <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=500&q=80" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition duration-500" alt="Room">
+                        <div class="absolute top-3 right-3 bg-white px-2 py-1 rounded-lg text-xs font-bold">8-10 pers.</div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg">Sala Curie</h3>
+                        <p class="text-sm text-slate-500 mb-4">Pantalla interactiva, Insonorizada.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-amber-600 text-xs font-bold uppercase">Ocupada hasta 16:00</span>
+                            <button class="px-4 py-2 bg-slate-200 text-slate-500 rounded-lg text-sm font-medium cursor-not-allowed">Esperar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BOOKS TAB -->
+        <section id="tab-books" class="tab-content hidden">
+            <div class="mb-8">
+                <div class="relative max-w-2xl mx-auto">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" placeholder="Buscar por título, autor o ISBN..." class="w-full pl-12 pr-4 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none transition">
+                </div>
+            </div>
+            
+            <div class="glass-card rounded-2xl overflow-hidden shadow-sm">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 border-b border-slate-100">
+                        <tr>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase">Título</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase">Biblioteca</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase">Estado</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr>
+                            <td class="px-6 py-4">
+                                <p class="font-bold">Cálculo Diferencial e Integral</p>
+                                <p class="text-xs text-slate-400">James Stewart</p>
+                            </td>
+                            <td class="px-6 py-4 text-sm">Fac. Ingeniería</td>
+                            <td class="px-6 py-4">
+                                <span class="bg-green-100 text-green-600 px-2 py-1 rounded text-[10px] font-bold uppercase">Disponible</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <button class="text-blue-600 hover:underline font-medium text-sm">Solicitar</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4">
+                                <p class="font-bold">Inteligencia Artificial: Un Enfoque Moderno</p>
+                                <p class="text-xs text-slate-400">Russell & Norvig</p>
+                            </td>
+                            <td class="px-6 py-4 text-sm">Biblio. Central</td>
+                            <td class="px-6 py-4">
+                                <span class="bg-red-100 text-red-600 px-2 py-1 rounded text-[10px] font-bold uppercase">Prestado</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <button class="text-slate-400 font-medium text-sm">Reservar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ADMIN TAB -->
+        <section id="tab-admin" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 glass-card p-6 rounded-2xl shadow-sm">
+                    <h3 class="font-bold text-xl mb-6">Analítica de Ocupación</h3>
+                    <!-- Placeholder for Chart -->
+                    <div class="h-64 w-full bg-slate-50 rounded-xl flex items-end justify-between p-6 relative overflow-hidden">
+                        <div class="absolute inset-0 flex items-center justify-center text-slate-300 opacity-20 pointer-events-none">
+                            <i class="fas fa-chart-line text-[10rem]"></i>
+                        </div>
+                        <div class="w-8 bg-blue-400 rounded-t-lg" style="height: 40%"></div>
+                        <div class="w-8 bg-blue-500 rounded-t-lg" style="height: 60%"></div>
+                        <div class="w-8 bg-blue-600 rounded-t-lg" style="height: 90%"></div>
+                        <div class="w-8 bg-blue-400 rounded-t-lg" style="height: 70%"></div>
+                        <div class="w-8 bg-blue-500 rounded-t-lg" style="height: 45%"></div>
+                        <div class="w-8 bg-blue-600 rounded-t-lg" style="height: 85%"></div>
+                        <div class="w-8 bg-blue-700 rounded-t-lg" style="height: 95%"></div>
+                    </div>
+                    <div class="flex justify-between mt-4 text-[10px] text-slate-400 uppercase font-bold px-2">
+                        <span>Lun</span><span>Mar</span><span>Mie</span><span>Jue</span><span>Vie</span><span>Sab</span><span>Dom</span>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="glass-card p-6 rounded-2xl shadow-sm bg-slate-900 text-white border-none">
+                        <h4 class="font-bold mb-4 opacity-75">Optimización Sugerida</h4>
+                        <p class="text-sm mb-4">Se detecta una subutilización del 40% en la Planta 2 durante las mañanas.</p>
+                        <button class="w-full py-2 bg-blue-600 rounded-lg text-sm font-bold">Generar Reporte</button>
+                    </div>
+                    
+                    <div class="glass-card p-6 rounded-2xl shadow-sm">
+                        <h4 class="font-bold mb-4">Acciones Rápidas</h4>
+                        <div class="space-y-3">
+                            <button class="w-full text-left p-3 hover:bg-slate-50 rounded-lg flex items-center justify-between group transition">
+                                <span class="text-sm">Liberar Puestos Inactivos</span>
+                                <i class="fas fa-chevron-right text-slate-300 group-hover:text-blue-500"></i>
+                            </button>
+                            <button class="w-full text-left p-3 hover:bg-slate-50 rounded-lg flex items-center justify-between group transition">
+                                <span class="text-sm">Modificar Horarios</span>
+                                <i class="fas fa-chevron-right text-slate-300 group-hover:text-blue-500"></i>
+                            </button>
+                            <button class="w-full text-left p-3 hover:bg-slate-50 rounded-lg flex items-center justify-between group transition">
+                                <span class="text-sm">Alertas del Sistema</span>
+                                <span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">2</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Notification system -->
+    <div id="toast" class="fixed top-6 right-6 translate-x-[150%] transition-transform duration-500 z-[100] bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4">
+        <i class="fas fa-check-circle text-green-400"></i>
+        <span id="toast-msg">Acción realizada con éxito</span>
+    </div>
+
+    <script>
+        const tabs = ['dashboard', 'map', 'rooms', 'books', 'admin'];
+        const pageInfo = {
+            dashboard: { title: "Panel de Control", subtitle: "Bienvenido a StudyNow, Central Universitaria." },
+            map: { title: "Localizador de Puestos", subtitle: "Busca un espacio libre en tiempo real." },
+            rooms: { title: "Salas de Grupo", subtitle: "Reserva espacios colaborativos para tus proyectos." },
+            books: { title: "Catálogo Bibliográfico", subtitle: "Consulta la disponibilidad de recursos físicos." },
+            admin: { title: "Gestión Administrativa", subtitle: "Panel de optimización y estadísticas de uso." }
+        };
+
+        // Initialize Map
+        function initMap() {
+            const mapContainer = document.getElementById('seat-map');
+            mapContainer.innerHTML = '';
+            
+            for(let i = 1; i <= 40; i++) {
+                const seat = document.createElement('div');
+                const states = ['available', 'occupied', 'away'];
+                const randomState = states[Math.floor(Math.random() * states.length)];
+                
+                seat.className = `seat ${randomState}`;
+                seat.id = `seat-S${i}`;
+                seat.setAttribute('onclick', `selectSeat('S${i}', '${randomState}')`);
+                mapContainer.appendChild(seat);
+            }
+        }
+
+        function selectSeat(id, state) {
+            // Remove previous selections
+            document.querySelectorAll('.seat').forEach(s => s.classList.remove('selected'));
+            
+            const seat = document.getElementById(`seat-${id}`);
+            seat.classList.add('selected');
+
+            const details = document.getElementById('seat-details');
+            const ui = document.getElementById('active-seat-ui');
+            const seatIdLabel = document.getElementById('selected-id');
+
+            if (state === 'available') {
+                details.classList.add('hidden');
+                ui.classList.remove('hidden');
+                seatIdLabel.innerText = id;
+            } else {
+                details.classList.remove('hidden');
+                ui.classList.add('hidden');
+                details.innerHTML = `
+                    <div class="text-red-500 mb-2 font-bold uppercase text-xs">Ocupado</div>
+                    <p class="text-sm">El puesto ${id} está actualmente en uso.</p>
+                    <p class="text-[10px] mt-2">Próxima liberación estimada: 1h 20m</p>
+                `;
+            }
+        }
+
+        function bookSeat() {
+            const id = document.getElementById('selected-id').innerText;
+            showToast(`¡Puesto ${id} reservado con éxito!`);
+            switchTab('dashboard');
+        }
+
+        function switchTab(tabName) {
+            // Update Tab Content
+            tabs.forEach(tab => {
+                document.getElementById(`tab-${tab}`).classList.add('hidden');
+                document.getElementById(`nav-${tab}`).classList.replace('text-blue-600', 'text-slate-400');
+                document.getElementById(`nav-${tab}`).classList.remove('active');
+            });
+
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`nav-${tabName}`).classList.replace('text-slate-400', 'text-blue-600');
+            document.getElementById(`nav-${tabName}`).classList.add('active');
+
+            // Update Header
+            document.getElementById('page-title').innerText = pageInfo[tabName].title;
+            document.getElementById('page-subtitle').innerText = pageInfo[tabName].subtitle;
+
+            if(tabName === 'map') initMap();
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.style.transform = 'translateX(0)';
+            setTimeout(() => {
+                toast.style.transform = 'translateX(150%)';
+            }, 3000);
+        }
+
+        window.onload = () => {
+            initMap();
+        };
+    </script>
+</body>
+</html>
