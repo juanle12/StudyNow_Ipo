@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StudyNow | Gestión de Bibliotecas Inteligente</title>
-    <!-- Tailwind CSS para estructura -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Iconos FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Chakra Petch -->
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -20,7 +17,7 @@
             --color-dark: #4d4d4d;       /* Gris Aluminio */
             --color-deep: #1a1a1a;       /* Negro neutro para contraste */
             --color-bg: #f5f5f5;         /* Gris muy claro de fondo */
-            --color-free: #10b981;       /* VERDE para libre (Se mantiene por instrucción previa) */
+            --color-free: #10b981;       /* VERDE para libre */
             --color-occupied: #d22020;   /* ROJO Vítor para ocupado */
         }
 
@@ -32,8 +29,8 @@
         }
 
         /* Utilidades de color forzadas */
-        .bg-custom-deep { background-color: var(--color-secondary); } /* Azul Centenario para nav */
-        .bg-custom-accent { background-color: var(--color-primary); } /* Rojo Vítor para logo */
+        .bg-custom-deep { background-color: var(--color-secondary); } 
+        .bg-custom-accent { background-color: var(--color-primary); } 
         .text-custom-accent { color: var(--color-primary); } 
         .border-custom-secondary { border-color: var(--color-secondary); }
 
@@ -135,10 +132,9 @@
 </head>
 <body>
 
-    <!-- Navegación -->
     <nav class="fixed bottom-0 left-0 right-0 md:top-0 md:left-0 md:w-28 md:h-full z-50 flex md:flex-col items-center justify-around md:justify-start py-6 md:px-2 shadow-2xl">
         <div class="hidden md:flex mb-12 text-2xl font-black text-white bg-custom-accent w-16 h-16 items-center justify-center rounded-2xl shadow-lg">SN</div>
-        <div class="flex md:flex-col gap-8">
+        <div class="flex md:flex-col gap-8 w-full md:w-auto px-4 md:px-0">
             <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-link active">
                 <i class="fas fa-chart-line text-2xl"></i>
                 <span class="text-[10px] font-bold uppercase md:block hidden">Panel</span>
@@ -147,6 +143,10 @@
                 <i class="fas fa-border-all text-2xl"></i>
                 <span class="text-[10px] font-bold uppercase md:block hidden">Mapa</span>
             </button>
+            <button onclick="switchTab('rooms')" id="nav-rooms" class="nav-link">
+                <i class="fas fa-users text-2xl"></i>
+                <span class="text-[10px] font-bold uppercase md:block hidden">Salas</span>
+            </button>
             <button onclick="switchTab('ai')" id="nav-ai" class="nav-link">
                 <i class="fas fa-brain text-2xl"></i>
                 <span class="text-[10px] font-bold uppercase md:block hidden">Asistente</span>
@@ -154,14 +154,12 @@
         </div>
     </nav>
 
-    <!-- Contenido Principal -->
     <main class="md:ml-32 p-8 pb-32 max-w-6xl mx-auto">
         <header class="mb-12 border-b-4 border-custom-secondary pb-6">
             <h1 id="page-title" class="text-5xl font-black uppercase tracking-tighter text-custom-deep">Panel de Control</h1>
             <p id="page-subtitle" class="text-xl font-medium text-[#4d4d4d] mt-2">Sincronización de espacios en tiempo real.</p>
         </header>
 
-        <!-- Tab: Dashboard -->
         <section id="tab-dashboard" class="tab-content">
             <div class="ai-panel glass-card p-8 mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
                 <div class="flex items-center gap-6">
@@ -207,7 +205,6 @@
             </div>
         </section>
 
-        <!-- Tab: Mapa -->
         <section id="tab-map" class="tab-content hidden">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 <div class="lg:col-span-2 glass-card p-8">
@@ -216,8 +213,7 @@
                         <div class="flex items-center gap-2"><span class="status-dot bg-[#d22020]"></span> Ocupado</div>
                     </div>
                     <div id="seat-map" class="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-3 justify-items-center bg-gray-50 p-6 rounded-xl border-inner border border-gray-200">
-                        <!-- Los asientos se generan con JS -->
-                    </div>
+                        </div>
                 </div>
 
                 <div class="lg:col-span-1">
@@ -241,10 +237,49 @@
             </div>
         </section>
 
-        <!-- Tab: Asistente IA -->
+        <section id="tab-rooms" class="tab-content hidden">
+            <h2 class="text-3xl font-black mb-8 uppercase flex items-center gap-4 text-custom-deep">
+                <i class="fas fa-door-open text-custom-accent"></i> Nivel de Ruido en Salas
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="glass-card p-6 border-l-8 border-[#10b981]">
+                    <div class="flex justify-between items-start mb-4">
+                        <h4 class="font-black text-xl uppercase">Sala A (Lectura)</h4>
+                        <span class="bg-green-100 text-[#10b981] px-2 py-1 rounded text-[10px] font-black uppercase">SILENCIO</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-[#4d4d4d] text-sm font-medium mb-6">
+                        <i class="fas fa-volume-mute text-[#10b981] text-lg"></i> <span class="font-black text-xl">15 dB</span> (Muy Bajo)
+                    </div>
+                    <button class="btn-main w-full py-3 text-sm">Acceder</button>
+                </div>
+
+                <div class="glass-card p-6 border-l-8 border-[#385e9d]">
+                    <div class="flex justify-between items-start mb-4">
+                        <h4 class="font-black text-xl uppercase">Sala B (Grupos)</h4>
+                        <span class="bg-blue-100 text-[#385e9d] px-2 py-1 rounded text-[10px] font-black uppercase">MODERADO</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-[#4d4d4d] text-sm font-medium mb-6">
+                        <i class="fas fa-volume-down text-[#385e9d] text-lg"></i> <span class="font-black text-xl">45 dB</span> (Conversación)
+                    </div>
+                    <button class="btn-main w-full py-3 text-sm">Acceder</button>
+                </div>
+
+                <div class="glass-card p-6 border-l-8 border-[#d22020]">
+                    <div class="flex justify-between items-start mb-4">
+                        <h4 class="font-black text-xl uppercase">Cafetería</h4>
+                        <span class="bg-red-100 text-[#d22020] px-2 py-1 rounded text-[10px] font-black uppercase">ALTO</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-[#4d4d4d] text-sm font-medium mb-6">
+                        <i class="fas fa-volume-up text-[#d22020] text-lg"></i> <span class="font-black text-xl">75 dB</span> (Bullicio)
+                    </div>
+                    <button class="btn-main w-full py-3 text-sm">Acceder</button>
+                </div>
+            </div>
+        </section>
+
         <section id="tab-ai" class="tab-content hidden">
             <div class="glass-card p-10 ai-panel shadow-xl">
-                <h2 class="text-3xl font-black mb-8 uppercase flex items-center gap-4">
+                <h2 class="text-3xl font-black mb-8 uppercase flex items-center gap-4 text-custom-deep">
                     <i class="fas fa-magic text-[#d22020]"></i>
                     Estratega de Estudio
                 </h2>
@@ -266,7 +301,6 @@
         </section>
     </main>
 
-    <!-- Notificaciones -->
     <div id="toast" class="fixed top-8 right-8 translate-x-[150%] transition-transform duration-500 z-[100] bg-[#1a1a1a] text-white px-10 py-5 rounded-2xl shadow-2xl border-b-4 border-[#d22020] flex items-center gap-4">
         <i class="fas fa-check-circle text-2xl text-green-500"></i>
         <span id="toast-msg" class="font-black uppercase tracking-tighter">OPERACIÓN EXITOSA</span>
@@ -281,11 +315,14 @@
             document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
             document.getElementById(`tab-${name}`).classList.remove('hidden');
             document.getElementById(`nav-${name}`).classList.add('active');
+            
             const titles = {
                 dashboard: ["Panel de Control", "Monitorización de espacios en tiempo real."],
                 map: ["Zonificación", "Selección estratégica de tu puesto de trabajo."],
+                rooms: ["Salas de Estudio", "Monitorización de sonoridad y aforo."],
                 ai: ["Nexus AI", "Planificación inteligente de sesiones de estudio."]
             };
+            
             document.getElementById('page-title').innerText = titles[name][0];
             document.getElementById('page-subtitle').innerText = titles[name][1];
             if(name === 'map') renderMap();
@@ -319,9 +356,12 @@
             const output = document.getElementById('ai-output');
             const btn = document.getElementById('plan-btn');
             const spinner = document.getElementById('btn-spinner');
+            
             if(!input.trim()) return;
+            
             btn.disabled = true;
             spinner.classList.remove('hidden');
+            
             try {
                 const res = await callGemini(`Tengo este objetivo: "${input}". Genera un plan de 3 pasos.`);
                 output.innerText = res;
